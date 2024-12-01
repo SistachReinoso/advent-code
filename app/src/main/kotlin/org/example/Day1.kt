@@ -25,11 +25,21 @@ fun main() {
     val d2 = path.readText()
 
     parser(d2)
-        .let(::day1)
+        .let(::day2)
 }
 
-private fun parser(d2: String): List<List<Int>> {
-    val list = d2
+private fun day2(list: List<List<Int>>) {
+    val right = list.map { numbers -> numbers[1] }.sorted()
+
+    val tutu = list
+        .map { element -> element[0] }
+        .sumOf { value -> value * right.count { r -> r == value } }
+
+    println(tutu)
+}
+
+private fun parser(input: String): List<List<Int>> {
+    val list = input
         .split("\n")
         .filter { line -> line.isNotBlank() }
         .map { line ->
