@@ -9,27 +9,25 @@ val realFile: Path = object {}.javaClass.getResource("/day2.txt")!!.path.let(::P
 val demoFile = object {}.javaClass.getResource("/day2.demo.txt")!!.path.let(::Path)
 
 fun main() {
-    readFile(realFile, Sequence<String>::day2Part2)
+    readFile(demoFile, Sequence<List<Long>>::day2Part2)
         .let(::println)
 }
 
-fun Sequence<String>.day2Part2() = this
-    .map { line -> line.split("""\s++""".toRegex()).map(String::toInt) }
-    .filter { list -> increaseOrDecrease2(list) }
-    .count()
+fun Sequence<List<Long>>.day2Part2() = this
+    .filter(::increaseOrDecrease2)
+    .count().toLong()
 
-fun Sequence<String>.day2First() = this
-    .map { line -> line.split("""\s++""".toRegex()).map(String::toInt) }
-    .filter { list -> increaseOrDecrease(list) }
-    .count()
+fun Sequence<List<Long>>.day2First() = this
+    .filter(::increaseOrDecrease)
+    .count().toLong()
 
-fun increaseOrDecrease2(list: List<Int>): Boolean {
+fun increaseOrDecrease2(list: List<Long>): Boolean {
     if (increaseOrDecrease(list)) return true
     val range = list.indices
     return range.any { i -> increaseOrDecrease(list.slice(range - i)) }
 }
 
-fun increaseOrDecrease(list: List<Int>): Boolean {
+fun increaseOrDecrease(list: List<Long>): Boolean {
     val increase: Boolean = list[0] < list[1]
     list
         .windowed(2)
@@ -41,5 +39,9 @@ fun increaseOrDecrease(list: List<Int>): Boolean {
     return true
 }
 
-private fun <T> readFile(file: Path, kFunction1: (Sequence<String>) -> T): T =
-    file.useLines { lines -> return kFunction1(lines) }
+private fun readFile(file: Path, advent02: (Sequence<List<Long>>) -> Long): Long =
+    file.useLines { lines ->
+        lines
+            .map { line -> line.split("""\s++""".toRegex()).map(String::toLong) }
+            .let(advent02)
+    }
