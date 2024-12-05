@@ -6,7 +6,7 @@ import kotlin.io.path.readLines
 import kotlin.io.path.useLines
 
 
-val file: Path = object {}.javaClass.getResource(
+private val file: Path = object {}.javaClass.getResource(
     //"/2024/04/demo"
     //"/2024/04/demo2"
     "/2024/04/input"
@@ -16,12 +16,12 @@ const val XMAS = "XMAS"
 val XMAS_regex = XMAS.toRegex()
 val SAMX_regex = XMAS.reversed().toRegex()
 
-fun main() {
+private fun main() {
     part1(file) // 18
     part2(file) //  9 + 1
 }
 
-fun part1(file: Path) {
+private fun part1(file: Path) {
     val list = file.readLines()
     val h = countHoritzontal(list, ::countXmas) // 5
     val v = countVertical(list, ::countXmas) // 3
@@ -78,7 +78,7 @@ fun indexDiagonal2(index: Int, row: Int, col: Int): Sequence<Pair<Int, Int>> = s
 /****************************************************************************************************/
 
 val aRegex = "A".toRegex()
-fun part2(file: Path) {
+private fun part2(file: Path) {
     file.useLines { lines ->
         lines
             .windowed(3)
