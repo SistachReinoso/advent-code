@@ -11,7 +11,7 @@ fun main() {
     )!!.path.let(::Path)
 
     part1(file) // 41
-    //part2(file) // 6
+    part2(file) // 6
 }
 
 private fun part1(file: Path) = parse(file)
@@ -72,6 +72,11 @@ private data class TerrainTable(val table: List<MutableList<Terrain>>) {
     fun horitzontalSize() = table.first().size
     fun verticalSize() = table.size
     fun get(c: Coordinates): Terrain = table[c.y][c.x]
+    fun addObstruction(c: Coordinates): TerrainTable {
+        val new = table.map { mutable -> mutable.toMutableList() }
+        new[c.y][c.x] = Terrain.ADD_OBSTRUCTION
+        return TerrainTable(new)
+    }
 }
 
 private data class Game(val guard: Guard, val table: TerrainTable, val track: MutableSet<Coordinates>) {
@@ -115,7 +120,7 @@ private data class Game(val guard: Guard, val table: TerrainTable, val track: Mu
         return "--- ${countCross()} ---\n" +
                 vr.joinToString("\n") { y ->
                     hr.joinToString("") { x ->
-                        when(val coordinates = Coordinates(x, y)) {
+                        when (val coordinates = Coordinates(x, y)) {
                             guard.coordinates -> guard.toString()
                             in track -> "X"
                             else -> table.get(coordinates).char.toString()
@@ -146,4 +151,98 @@ private fun parse(file: Path): Game {
             }.toList() // XXX we need define guard value
         return Game(guard!!, TerrainTable(table), mutableSetOf(guard!!.coordinates))
     }
+}
+
+/****************************************************************************************************/
+/*                                             Part 2                                               */
+/****************************************************************************************************/
+
+private data class Game2(
+    val guard: Guard,
+    val table: TerrainTable,
+    val track: MutableSet<Guard>,
+    val init: Guard,
+    val obstructionSet: MutableSet<Coordinates>
+) {
+    fun isNotEnded() = !isEnded()
+    fun isEnded(): Boolean {
+        val (x, y) = guard.coordinates
+        val direction = guard.direction
+
+        return (x == 0 && direction == Direction.LEFT) ||
+                (y == 0 && direction == Direction.UP) ||
+                (x == table.horitzontalSize() - 1 && direction == Direction.RIGHT) ||
+                (y == table.verticalSize() - 1 && direction == Direction.DOWN)
+    }
+
+    fun walkToEnd(): Boolean {
+        while (isNotEnded()) {
+            if (walk()) return true
+        }
+        return false
+    }
+
+    fun walkToEndOrLoop(): Int {
+        var count = 0
+        while (isNotEnded()) {
+            val nextCoordinates = guard.nextStepCoordinates()
+            if (table.get(nextCoordinates) == Terrain.FREE && nextCoordinates !in obstructionSet) {
+                obstructionSet.add(nextCoordinates)
+                val obstructionGame = this.copy(
+                    guard = init.copy(),
+                    table = table.addObstruction(nextCoordinates),
+                    track = mutableSetOf(init.copy())
+                )
+                if (obstructionGame.walkToEnd()) {
+                    // println("\n==================="); println(obstructionGame)
+                    count++
+                }
+            }
+            walk()
+        }
+
+        return count
+    }
+
+
+    private fun walk(): Boolean {
+        val newCoordinates = guard.nextStepCoordinates()
+        if (isNotObstruction(newCoordinates)) {
+            guard.move(newCoordinates)
+            if (guard in track) return true
+            track.add(guard.copy())
+        } else guard.turn()
+        return false
+    }
+
+    private fun isNotObstruction(coordinates: Coordinates): Boolean = when (table.get(coordinates)) {
+        Terrain.OBSTRUCTIONS -> false
+        Terrain.ADD_OBSTRUCTION -> false
+        Terrain.FREE -> true
+    }
+
+    fun countCross() = track.size
+
+    override fun toString(): String {
+        val hr = 0..<table.horitzontalSize()
+        val vr = 0..<table.verticalSize()
+
+        return "--- ${countCross()} ---\n" +
+                vr.joinToString("\n") { y ->
+                    hr.joinToString("") { x ->
+                        when (val coordinates = Coordinates(x, y)) {
+                            guard.coordinates -> guard.toString()
+                            in track.map { it.coordinates } -> "X"
+                            else -> table.get(coordinates).char.toString()
+                        }
+                    }
+                }
+    }
+}
+
+private fun part2(file: Path) {
+    val (guard: Guard, table: TerrainTable, _) = parse(file)
+    Game2(guard, table, mutableSetOf(guard), guard.copy(), mutableSetOf())
+        .let(Game2::walkToEndOrLoop)
+        .also(::println)
 }
