@@ -14,7 +14,7 @@ fun main() {
     )!!.path.let(::Path)
 
     part1(file) // 3749
-    //part2(file) //
+    part2(file) // 11387
 }
 
 private fun part1(file: Path) {
@@ -45,3 +45,34 @@ private fun part1(file: Path) {
 
 private fun String.parser() =
     this.split(NON_DIGIT_REGEX).map { element -> element.toLong() }.let { list -> Pair(list.first(), list.drop(1)) }
+
+/****************************************************************************************************/
+/*                                             Part 2                                               */
+/****************************************************************************************************/
+
+private fun part2(file: Path) {
+    file.useLines { lines ->
+        lines.map(String::parser)
+            .sumOf { (result, list) ->
+                val operations = list.zipWithNext()
+                val operationsSize = operations.size
+
+                val r = (0L..<pow(3L, operationsSize))
+                    .any { s: Long ->
+                        result == s.toString(3).padStart(operations.size, '0')
+                            .withIndex()
+                            .fold(list.first()) { acc, (i, c) ->
+                                val next = list[i + 1]
+                                when (c) {
+                                    '0' -> acc + next
+                                    '1' -> acc * next
+                                    '2' -> "$acc$next".toLong()
+                                    else -> TODO("unexpected char: '$c'")
+                                }
+                            }
+                    }
+                if (r) result else 0
+            }
+            .let(::println)
+    }
+}
