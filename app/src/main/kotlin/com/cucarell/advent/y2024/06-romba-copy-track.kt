@@ -39,7 +39,11 @@ private enum class Terrain(val char: Char) {
     ;
 }
 
-private data class Coordinates(val x: Int, val y: Int)
+data class Coordinates(val x: Int, val y: Int) {
+    operator fun minus(o: Coordinates): Coordinates = Coordinates(x - o.x, y - o.y)
+    operator fun plus(o: Coordinates): Coordinates = Coordinates(x + o.x, y + o.y)
+    override fun toString(): String = "($x, $y)"
+}
 
 private data class Guard(var direction: Direction, var coordinates: Coordinates) {
     fun nextStepCoordinates(): Coordinates {
