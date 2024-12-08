@@ -11,7 +11,7 @@ fun main() {
     )!!.path.let(::Path)
 
     part1(file) // 14
-    //part2(file) //
+    part2(file) // 34
 }
 
 private fun part1(file: Path) {
@@ -57,4 +57,45 @@ private fun parse(file: Path): Pair<Map<Char, List<Coordinates>>, Coordinates> {
             .groupBy(keySelector = { it.first }, valueTransform = { it.second })
             .let { map -> Pair(map, Coordinates(xMax, yMax)) }
     }
+}
+
+/****************************************************************************************************/
+/*                                             Part 2                                               */
+/****************************************************************************************************/
+
+private fun part2(file: Path) {
+    val (map, size) = parse(file)
+
+    map
+        .map { (_, list) -> getAllAntinodes2(list, size) }
+        .flatten()
+        .toSet()
+        .filter { coordinates -> isIn(coordinates, size) }
+        .also { println(it.size) }
+}
+
+private fun getAllAntinodes2(list: List<Coordinates>, size: Coordinates): Collection<Coordinates> = (0..list.size - 2)
+    .map { i -> combinationElementList2(list[i], list.drop(i + 1), size) }
+    .flatten()
+
+private fun combinationElementList2(c: Coordinates, list: List<Coordinates>, size: Coordinates): List<Coordinates> =
+    list.map { e -> antinodes2(c, e, size) }.flatten()
+
+private fun antinodes2(a: Coordinates, b: Coordinates, size: Coordinates): List<Coordinates> {
+    val diff = a - b
+    val result = mutableListOf(a, b)
+
+    var i = 1
+    do {
+        val r = a + diff * i++
+        if (isIn(r, size)) result.add(r)
+    } while (isIn(r, size))
+
+    i = 1
+    do {
+        val r = b - diff * i++
+        if (isIn(r, size)) result.add(r)
+    } while (isIn(r, size))
+
+    return result
 }
