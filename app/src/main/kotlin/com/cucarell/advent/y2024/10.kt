@@ -12,6 +12,7 @@ fun main() {
     )!!.path.let(::Path)
 
     part1(file) // 36
+    part2(file) // 81
 }
 
 private fun part1(file: Path) {
@@ -39,3 +40,17 @@ private fun walkTo9(table: List<List<Long>>, c: Coordinates, value: Long = 0): C
 
 private fun parse(file: Path): List<List<Long>> = file
     .useLines { lines -> lines.map { line -> line.map { c -> c.digitToInt().toLong() } }.toList() }
+
+/****************************************************************************************************/
+/*                                             Part 2                                               */
+/****************************************************************************************************/
+
+private fun part2(file: Path) {
+    val table = parse(file)
+
+    table.withIndex().sumOf { (y, row) ->
+        row.withIndex()
+            .filter { (_, v) -> v == 0L }
+            .sumOf { (x, _) -> walkTo9(table, Coordinates(x, y)).size }
+    }.let(::println)
+}
