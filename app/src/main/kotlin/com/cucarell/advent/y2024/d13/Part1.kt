@@ -46,7 +46,8 @@ private fun parser(file: Path, function: (a: Coordinates, b: Coordinates, p: Coo
             .sumOf { chunked ->
                 val a = parseButton(chunked[0])
                 val b = parseButton(chunked[1])
-                val p = parsePrice(chunked[2])
+                val p1 = parsePrice(chunked[2])
+                val p = Coordinates(x = p1.x + 10000000000000L, y = p1.y + 10000000000000L)
 
                 //val sol = function(a, b, p); println("A $a, B $b, p $p: sol $sol"); sol
                 function(a, b, p)
