@@ -10,7 +10,7 @@ fun main() {
         "/2024/11/input"
     )!!.path.let(::Path)
 
-    part1(file, 25) // 55312 (25) 26(6)
+    part1(file, 75) // 55312 (25) 26(6)
         .let(::println)
 }
 
