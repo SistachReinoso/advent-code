@@ -1,29 +1,24 @@
 package com.cucarell.advent.y2024.d15
 
 import com.cucarell.advent.utils.Coordinates
+import com.cucarell.advent.utils.CoordinatesMove
+import com.cucarell.advent.utils.EnumChar
 import com.cucarell.advent.utils.Map2D
 import java.nio.file.Path
 import kotlin.io.path.useLines
 
-enum class Parser(val char: Char) {
+enum class Parser(override val char: Char): EnumChar {
     ROBOT('@'),
     BOX('O'),
     WALL('#'),
     EMPTY('.');
 }
 
-enum class Moves(val char: Char) {
-    UP('^'),
-    DOWN('v'),
-    LEFT('<'),
-    RIGHT('>');
-}
-
-fun parser(file: Path): Pair<Map2D, List<Moves>> {
+fun parser(file: Path): Pair<Map2D, List<CoordinatesMove>> {
     file.useLines { lines ->
         val iterable = lines.iterator()
         val map2d: Map2D = parserMap2D(iterable)
-        val orders: List<Moves> = parserMovements(iterable.asSequence())
+        val orders: List<CoordinatesMove> = parserMovements(iterable.asSequence())
         return Pair(map2d, orders)
     }
 }
@@ -57,15 +52,15 @@ private fun parserMap2D(iterable: Iterator<String>): Map2D {
     return Map2D(
         weight = width!!, height = y,
         collections = listOf(
-            Pair(Parser.WALL.char, walls),
-            Pair(Parser.BOX.char, boxes.map { b -> b.toMutable() })
+            Pair(Parser.WALL, walls),
+            Pair(Parser.BOX, boxes.map { b -> b.toMutable() })
         ),
-        elements = listOf(Pair(Parser.ROBOT.char, robot!!.toMutable()))
+        elements = listOf(Pair(Parser.ROBOT, robot!!.toMutable()))
     )
 }
 
-private fun parserMovements(sequence: Sequence<String>): List<Moves> {
-    val movementsMap = Moves.entries.associateBy { m -> m.char }
+private fun parserMovements(sequence: Sequence<String>): List<CoordinatesMove> {
+    val movementsMap = CoordinatesMove.entries.associateBy { m -> m.char }
     return sequence.map { line ->
         line.map { char ->
             movementsMap[char] ?: TODO("Unexpected char: '$char'")
