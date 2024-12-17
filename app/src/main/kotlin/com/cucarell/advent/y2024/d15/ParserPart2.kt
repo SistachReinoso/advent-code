@@ -1,10 +1,6 @@
 package com.cucarell.advent.y2024.d15
 
-import com.cucarell.advent.utils.CoordinatesMove
-import com.cucarell.advent.utils.Map2DObstacleCollection
-import com.cucarell.advent.utils.Map2DObstacleElement
-import com.cucarell.advent.utils.Map2DVersion2
-import com.cucarell.advent.utils.MutableCoordinates
+import com.cucarell.advent.utils.*
 import java.nio.file.Path
 import kotlin.io.path.useLines
 
@@ -37,6 +33,7 @@ private fun parserMap2D(iterable: Iterator<String>): Map2DVersion2 {
                     walls.add(c)
                     walls.add(c.getMovement(CoordinatesMove.RIGHT).toMutable())
                 }
+
                 Parser.BOX.char -> boxes.add(c)
                 Parser.ROBOT.char -> if (robot == null) robot = c else TODO("Robot: $robot, new $c")
                 else -> TODO("Unexpected char: '$char'")
@@ -49,9 +46,9 @@ private fun parserMap2D(iterable: Iterator<String>): Map2DVersion2 {
     return Map2DVersion2(
         weight = width!!, height = y,
         obstacles = listOf(
-            Map2DObstacleCollection(char = Parser.WALL.char, collection = walls),
-            Map2ObstacleBox(boxes),
-            Map2DObstacleElement(char = Parser.ROBOT.char, coordinates = robot!!)
+            Map2DObstacleCollection(id = Parser.WALL.char.toString(), char = Parser.WALL.char, collection = walls),
+            Map2ObstacleBox(id = Parser.BOX.char.toString(), collection = boxes),
+            Map2DObstacleElement(id = Parser.ROBOT.char.toString(), char = Parser.ROBOT.char, coordinates = robot!!)
         )
     )
 }

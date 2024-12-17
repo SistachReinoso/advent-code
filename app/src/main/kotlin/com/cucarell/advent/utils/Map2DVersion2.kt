@@ -1,18 +1,54 @@
 package com.cucarell.advent.utils
 
 interface Map2DObstacleInterface {
+    val id: String
+    fun getCoordinatesPointer(c: CoordinatesInterface): List<CoordinatesInterface>
+    fun getMovementCoordinates(c: CoordinatesInterface, move: CoordinatesMove): List<CoordinatesInterface>
     operator fun contains(o: CoordinatesInterface): Boolean
     fun getChar(c: CoordinatesInterface): Char
 }
 
-class Map2DObstacleCollection(val char: Char, val collection: Collection<CoordinatesInterface>) :
+class Map2DObstacleCollection(
+    val char: Char,
+    val collection: Collection<CoordinatesInterface>,
+    override val id: String
+) :
     Map2DObstacleInterface {
-    override fun contains(o: CoordinatesInterface): Boolean = o in collection
+    override fun getCoordinatesPointer(c: CoordinatesInterface): List<CoordinatesInterface> =
+        collection.filter { e -> e == c }
+
+    override fun getMovementCoordinates(c: CoordinatesInterface, move: CoordinatesMove): List<CoordinatesInterface> =
+        collection
+            .filter { e -> e == c }
+            .map { e -> e.getMovement(move) }
+
+    override fun contains(oi: CoordinatesInterface): Boolean {
+        val o = Coordinates(oi)
+        return collection.any { e -> o == e }
+    }
+
     override fun getChar(c: CoordinatesInterface) = char
 }
 
-class Map2DObstacleElement(val char: Char, val coordinates: CoordinatesInterface) : Map2DObstacleInterface {
-    override fun contains(o: CoordinatesInterface): Boolean = o == coordinates
+class Map2DObstacleElement(
+    val char: Char,
+    val coordinates: CoordinatesInterface,
+    override val id: String
+) : Map2DObstacleInterface {
+    override fun getCoordinatesPointer(c: CoordinatesInterface): List<CoordinatesInterface> = getCoordinatesPointer()
+    fun getCoordinatesPointer() = listOf(coordinates)
+
+    override fun getMovementCoordinates(c: CoordinatesInterface, move: CoordinatesMove): List<CoordinatesInterface> =
+        getMovementCoordinates(move)
+
+    fun getMovementCoordinates(move: CoordinatesMove): List<CoordinatesInterface> =
+        listOf(coordinates.getMovement(move))
+
+
+    override fun contains(oi: CoordinatesInterface): Boolean {
+        val o = Coordinates(oi)
+        return o == coordinates
+    }
     override fun getChar(c: CoordinatesInterface) = char
 }
 
@@ -23,8 +59,13 @@ class Map2DVersion2(
     private val emptyChar: Char = '.',
     private val multipleChar: Char = '8'
 ) {
+    fun getObstacle(id: String): Map2DObstacleInterface = obstacles
+        .first { o -> o.id == id }
 
-    fun searchObstacle(c: CoordinatesInterface): List<Map2DObstacleInterface> = obstacles
+    fun getObstacleOrNull(c: CoordinatesInterface): Map2DObstacleInterface? = obstacles
+        .firstOrNull { o -> c in o }
+
+    fun searchObstacle(c: Coordinates): List<Map2DObstacleInterface> = obstacles
         .filter { obstacle -> c in obstacle }
 
     fun toString(emptyChar: Char, multipleChar: Char): String =
