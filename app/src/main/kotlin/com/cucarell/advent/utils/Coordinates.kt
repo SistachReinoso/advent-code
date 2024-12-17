@@ -1,5 +1,7 @@
 package com.cucarell.advent.utils
 
+import kotlin.math.abs
+
 interface CoordinatesInterface {
     val x: Int
     val y: Int
@@ -10,6 +12,8 @@ interface CoordinatesInterface {
         CoordinatesMove.LEFT -> Coordinates(x - 1, y)
         CoordinatesMove.RIGHT -> Coordinates(x + 1, y)
     }
+
+    fun distance(o: CoordinatesInterface): Int = abs(x - o.x) + abs(y - o.y)
 
     operator fun plus(o: CoordinatesInterface): CoordinatesInterface = Coordinates(x + o.x, y + o.y)
 }

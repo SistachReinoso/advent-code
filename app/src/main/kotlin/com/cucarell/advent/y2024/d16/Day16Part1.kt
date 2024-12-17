@@ -34,6 +34,7 @@ class Map2ObstacleReindeer(
     override fun contains(o: CoordinatesInterface): Boolean = position.getCoordinates() == o
     override fun getChar(c: CoordinatesInterface): Char = position.direction.char
 
+    @Deprecated("Dona més confusió que altra cosa!")
     fun getMovements(): List<Pair<Position, Long>> {
         val c = position.getCoordinates()
         val move: CoordinatesMove = position.direction

@@ -3,6 +3,7 @@ package com.cucarell.advent.utils
 interface Map2DObstacleInterface {
     val id: String
     fun getCoordinatesPointer(c: CoordinatesInterface): List<CoordinatesInterface>
+
     @Deprecated("Perquè tots ho han de tenir? Una altra interface de moviment ho podria tenir sense problemes.")
     fun getMovementCoordinates(c: CoordinatesInterface, move: CoordinatesMove): List<CoordinatesInterface>
     operator fun contains(o: CoordinatesInterface): Boolean
@@ -50,6 +51,7 @@ class Map2DObstacleElement(
         val o = Coordinates(oi)
         return o == coordinates
     }
+
     override fun getChar(c: CoordinatesInterface) = char
 }
 
@@ -78,6 +80,21 @@ class Map2DVersion2(
                 acc + when (r.size) {
                     0 -> emptyChar
                     1 -> r.first().getChar(coordinates)
+                    else -> multipleChar
+                }
+            }
+        }
+
+    fun toString(other: Pair<Char, Collection<CoordinatesInterface>>, emptyChar: Char = '.', multipleChar: Char = '8'): String =
+        (0..<height).joinToString("\n") { y ->
+            (0..<weight).fold("") { acc, x ->
+                val coordinates = Coordinates(x, y)
+                val r = searchObstacle(coordinates).map { map2d -> map2d.getChar(coordinates) } +
+                        if (other.second.firstOrNull { c -> coordinates == c } == null) emptyList() else listOf(other.first)
+
+                acc + when (r.size) {
+                    0 -> emptyChar
+                    1 -> r.first()
                     else -> multipleChar
                 }
             }
