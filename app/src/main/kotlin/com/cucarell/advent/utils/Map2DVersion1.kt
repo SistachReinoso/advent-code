@@ -4,7 +4,7 @@ interface EnumChar {
     val char: Char
 }
 
-class Map2D(
+class Map2DVersion1(
     private val weight: Int,
     private val height: Int,
     private val collections: Collection<Pair<EnumChar, Collection<CoordinatesInterface>>>,

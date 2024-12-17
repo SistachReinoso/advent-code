@@ -3,7 +3,7 @@ package com.cucarell.advent.y2024.d15
 import com.cucarell.advent.utils.Coordinates
 import com.cucarell.advent.utils.CoordinatesMove
 import com.cucarell.advent.utils.EnumChar
-import com.cucarell.advent.utils.Map2D
+import com.cucarell.advent.utils.Map2DVersion1
 import java.nio.file.Path
 import kotlin.io.path.useLines
 
@@ -14,16 +14,16 @@ enum class Parser(override val char: Char): EnumChar {
     EMPTY('.');
 }
 
-fun parser(file: Path): Pair<Map2D, List<CoordinatesMove>> {
+fun parser(file: Path): Pair<Map2DVersion1, List<CoordinatesMove>> {
     file.useLines { lines ->
         val iterable = lines.iterator()
-        val map2d: Map2D = parserMap2D(iterable)
+        val map2d: Map2DVersion1 = parserMap2D(iterable)
         val orders: List<CoordinatesMove> = parserMovements(iterable.asSequence())
         return Pair(map2d, orders)
     }
 }
 
-private fun parserMap2D(iterable: Iterator<String>): Map2D {
+private fun parserMap2D(iterable: Iterator<String>): Map2DVersion1 {
     var y = 0
     val walls: MutableSet<Coordinates> = mutableSetOf()
     val boxes: MutableSet<Coordinates> = mutableSetOf()
@@ -49,7 +49,7 @@ private fun parserMap2D(iterable: Iterator<String>): Map2D {
         y++
     }
 
-    return Map2D(
+    return Map2DVersion1(
         weight = width!!, height = y,
         collections = listOf(
             Pair(Parser.WALL, walls),
@@ -59,7 +59,7 @@ private fun parserMap2D(iterable: Iterator<String>): Map2D {
     )
 }
 
-private fun parserMovements(sequence: Sequence<String>): List<CoordinatesMove> {
+fun parserMovements(sequence: Sequence<String>): List<CoordinatesMove> {
     val movementsMap = CoordinatesMove.entries.associateBy { m -> m.char }
     return sequence.map { line ->
         line.map { char ->

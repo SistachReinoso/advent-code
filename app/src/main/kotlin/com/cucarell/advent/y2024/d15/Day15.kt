@@ -1,7 +1,7 @@
 package com.cucarell.advent.y2024.d15
 
 import com.cucarell.advent.utils.CoordinatesMove
-import com.cucarell.advent.utils.Map2D
+import com.cucarell.advent.utils.Map2DVersion1
 import com.cucarell.advent.utils.MutableCoordinates
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -26,7 +26,7 @@ fun part1(file: Path): Long {
     return r
 }
 
-private fun moveRobot(map2D: Map2D, moves: List<CoordinatesMove>): Long {
+private fun moveRobot(map2D: Map2DVersion1, moves: List<CoordinatesMove>): Long {
     val robot: MutableCoordinates = map2D.getElement(Parser.ROBOT) as MutableCoordinates
     val wall = map2D.getCollection(Parser.WALL)
     val boxes: Collection<MutableCoordinates> = map2D.getCollection(Parser.BOX) as Collection<MutableCoordinates>
@@ -43,7 +43,7 @@ private fun moveRobot(map2D: Map2D, moves: List<CoordinatesMove>): Long {
 private fun getBoxesToMove(
     movement: CoordinatesMove,
     robot: MutableCoordinates,
-    map2D: Map2D
+    map2D: Map2DVersion1
 ): List<MutableCoordinates> {
     var move: MutableCoordinates = robot.getMovement(movement).toMutable()
     val boxes: Collection<MutableCoordinates> = map2D.getCollection(Parser.BOX) as Collection<MutableCoordinates>
