@@ -3,6 +3,7 @@ package com.cucarell.advent.utils
 interface Map2DObstacleInterface {
     val id: String
     fun getCoordinatesPointer(c: CoordinatesInterface): List<CoordinatesInterface>
+    @Deprecated("Perquè tots ho han de tenir? Una altra interface de moviment ho podria tenir sense problemes.")
     fun getMovementCoordinates(c: CoordinatesInterface, move: CoordinatesMove): List<CoordinatesInterface>
     operator fun contains(o: CoordinatesInterface): Boolean
     fun getChar(c: CoordinatesInterface): Char

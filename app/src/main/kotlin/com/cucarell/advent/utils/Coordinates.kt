@@ -22,15 +22,14 @@ enum class CoordinatesMove(val char: Char) {
 }
 
 data class Coordinates(override val x: Int, override val y: Int) : CoordinatesInterface {
-    constructor(c: CoordinatesInterface): this(c.x, c.y)
+    constructor(c: CoordinatesInterface) : this(c.x, c.y)
+
     fun toMutable(): MutableCoordinates = MutableCoordinates(x, y)
-    override operator fun equals(o: Any?): Boolean = if (o is CoordinatesInterface) x == o.x && y == o.y else super.equals(o)
+    override operator fun equals(o: Any?): Boolean =
+        if (o is CoordinatesInterface) x == o.x && y == o.y else super.equals(o)
+
     override fun hashCode(): Int = 10000 * x + y
     override fun toString(): String = "($x, $y)"
-}
-
-fun Iterable<CoordinatesInterface>.contains(oi: CoordinatesInterface): Boolean {
-    return true
 }
 
 data class MutableCoordinates(override var x: Int, override var y: Int) : CoordinatesInterface {
@@ -41,7 +40,23 @@ data class MutableCoordinates(override var x: Int, override var y: Int) : Coordi
         y = c.y
     }
 
-    override operator fun equals(o: Any?): Boolean = if (o is CoordinatesInterface) x == o.x && y == o.y else super.equals(o)
+    override operator fun equals(o: Any?): Boolean =
+        if (o is CoordinatesInterface) x == o.x && y == o.y else super.equals(o)
+
     override fun hashCode(): Int = 10000 * x + y
     override fun toString(): String = "($x, $y)"
+}
+
+data class Position(override val x: Int, override val y: Int, val direction: CoordinatesMove) : CoordinatesInterface {
+    constructor(c: CoordinatesInterface, m: CoordinatesMove) : this(x = c.x, y = c.y, direction = m)
+
+    fun getCoordinates(): CoordinatesInterface = Coordinates(x = x, y = y)
+    override operator fun equals(o: Any?): Boolean = when (o) {
+        is Position -> x == o.x && y == o.y && direction == o.direction
+        is CoordinatesInterface -> x == o.x && y == o.y
+        else -> super.equals(o)
+    }
+
+    override fun hashCode(): Int = 10000 * x + y
+    override fun toString(): String = "($x, $y, $direction)"
 }
