@@ -19,7 +19,7 @@ data class Alive(
     val position: Position,
     val points: Long,
     val startPoints: Long,
-    var track: Set<CoordinatesInterface>
+    var track: List<Pair<Position, Long>>
 ) {
     fun getMovements(): List<Pair<Position, Long>> {
         val move: CoordinatesMove = position.direction
@@ -33,33 +33,37 @@ data class Alive(
             }
     }
 
+    /* TODO error from Kotlin? Wii not match?
     override fun equals(o: Any?): Boolean = when (o) {
         is Alive -> position == o.position && points == o.points
         else -> super.equals(o)
     }
 
     override fun hashCode(): Int = when (position.direction) {
-        CoordinatesMove.UP -> 11
-        CoordinatesMove.DOWN -> 13
-        CoordinatesMove.LEFT -> 17
-        CoordinatesMove.RIGHT -> 19
+        CoordinatesMove.UP -> 191
+        CoordinatesMove.DOWN -> 197
+        CoordinatesMove.LEFT -> 157
+        CoordinatesMove.RIGHT -> 181
     } * (position.x + position.y * points.toInt())
+    */
 
     override fun toString(): String = "$position <$points, $startPoints> ${track.size}"
 }
 
+data class NextStep(val position: Position, val points: Long, val equals: Boolean)
+
 fun part2(file: Path): Long {
     val map2d: Map2DVersion2 = parser(file)
-    val end: CoordinatesInterface = map2d.getObstacle(Parser.END.id).getCoordinatesPointer(Coordinates(0, 0)).first()
+    val end = Coordinates(map2d.getObstacle(Parser.END.id).getCoordinatesPointer(Coordinates(0, 0)).first())
     val reindeer: Map2ObstacleReindeer = map2d.getObstacle(Parser.REINDER.id) as Map2ObstacleReindeer
 
     val track: MutableMap<Position, Long> = mutableMapOf(reindeer.position to 0)
-    val alive: MutableSet<Alive> = mutableSetOf(
-        Alive(
+    val alive: MutableList<Alive> = mutableListOf(
+        newAlive(
             position = reindeer.position,
-            startPoints = aStart(reindeer.position, end),
             points = 0L,
-            track = setOf(reindeer.position)
+            end = end,
+            track = emptyList()
         )
     )
 
@@ -71,11 +75,10 @@ fun part2(file: Path): Long {
         val explorer: Alive = nextExplorer(alive, maximumAlive)
         reindeer.position = explorer.position // show map!
         if (maximum != null && maximum < explorer.startPoints) {
-           // println(map2d.toString(other = Pair('0', explorer.track))); println(explorer)
-           // println("maximum < explorer.startPoints: $maximum < ${explorer.startPoints}: ${maximum < explorer.startPoints}")
-           // println(map2d.toString(other = Pair('O', maximumAlive!!.track))); println(explorer)
-            val endTrack = maximumAlive!!.track.map { c -> Coordinates(c.x, c.y) }.toSet()
-            return endTrack.size.toLong()
+            // println(map2d.toString(other = Pair('0', explorer.track))); println(explorer)
+            // println("maximum < explorer.startPoints: $maximum < ${explorer.startPoints}: ${maximum < explorer.startPoints}")
+            println(map2d.toString(other = Pair('O', maximumAlive!!.track.map { it.first }))); println(explorer)
+            return maximumAlive!!.track.size.toLong()
         } else if (explorer.position == end) {
             maximumAlive = explorer
             maximum = explorer.points
@@ -85,10 +88,10 @@ fun part2(file: Path): Long {
         }
         // TODO println(map2d.toString(other = Pair('0', explorer.track))); println(explorer)
 
-        val nextSteps: List<Pair<Position, Long>> = nextSteps(explorer = explorer, map2d = map2d, track = track)
+        val nextSteps: List<NextStep> = nextSteps(explorer = explorer, map2d = map2d, track = track)
 
-        val newAlives: List<Alive> = nextSteps.mapNotNull { (position: Position, points: Long) ->
-            updateAliveOrGetAlive(position = position, points = points, explorer = explorer, alive = alive, end = end)
+        val newAlives: List<Alive> = nextSteps.mapNotNull { nextStep: NextStep ->
+            updateAliveOrGetAlive(nextStep = nextStep, explorer = explorer, alive = alive, end = end)
         }
 
         alive.addAll(newAlives)
@@ -104,44 +107,51 @@ fun part2(file: Path): Long {
 // If filter as not null, this mean is == points, you update alive.
 // if not, you get a new alive
 fun updateAliveOrGetAlive(
-    position: Position,
-    points: Long,
+    nextStep: NextStep,
     explorer: Alive,
-    alive: Set<Alive>,
-    end: CoordinatesInterface
-): Alive? {
-    val list = alive.filter { a: Alive -> position in a.track }
-    if (list.isEmpty()) return newAlive(
-        position = position,
-        points = points,
+    alive: List<Alive>,
+    end: Coordinates,
+): Alive? =
+    if (nextStep.equals) {
+        val check = alive.filter { a: Alive -> Pair(nextStep.position, nextStep.points) in a.track }
+        // TODO (?) if (check.isEmpty()) TODO("$nextStep,\n ${alive.joinToString("\n")}")
+        check.forEach { a: Alive ->
+            a.track = (a.track + explorer.track).distinctBy { t -> t.first.getCoordinates() }
+        }
+        null
+    } else newAlive(
+        position = nextStep.position,
+        points = nextStep.points,
         track = explorer.track,
         end = end
     )
 
-    list.forEach { a: Alive -> a.track = a.track + explorer.track }
-    return null
-}
-
-fun newAlive(position: Position, points: Long, end: CoordinatesInterface, track: Set<CoordinatesInterface>): Alive =
+fun newAlive(position: Position, points: Long, end: Coordinates, track: List<Pair<Position, Long>>): Alive =
     Alive(
         position = position,
         points = points,
         startPoints = points + aStart(position = position, end = end),
-        track = track + setOf(position)
+        track = track + setOf(Pair(position, points))
     )
 
-fun nextSteps(explorer: Alive, map2d: Map2DVersion2, track: Map<Position, Long>): List<Pair<Position, Long>> = explorer
+fun nextSteps(explorer: Alive, map2d: Map2DVersion2, track: Map<Position, Long>): List<NextStep> = explorer
     .getMovements()
     .filter { (p: Position, _) -> map2d.getObstacleOrNull(p)?.id != Parser.WALL.id }
-    .filter { (position: Position, points: Long) ->
+    .mapNotNull { (position: Position, points: Long) ->
         val oldPoints = track[position]
-        if (oldPoints == null) CoordinatesMove
-            .entries
-            .map { m -> position.copy(direction = m) }
-            .mapNotNull { p: Position -> track[p] }
-            .also { list -> if (list.isEmpty()) return@filter true }
-            .any { rotatedPoints: Long -> points <= rotatedPoints + 1000L }
-        else points <= oldPoints
+        if (oldPoints == null) {
+            val whatDo = CoordinatesMove
+                .entries
+                .map { m -> position.copy(direction = m) }
+                .mapNotNull { p: Position -> track[p] }
+                .none { rotatedPoints: Long -> points > rotatedPoints + 1000L }
+
+            if (whatDo) NextStep(position = position, points = points, equals = false) else null
+        } else if (points > oldPoints) null else NextStep(
+            position = position,
+            points = points,
+            equals = points == oldPoints
+        )
     }
 /* TODO deletme (?)
 .map { (position: Position, p: Long) ->
@@ -154,11 +164,13 @@ fun nextSteps(explorer: Alive, map2d: Map2DVersion2, track: Map<Position, Long>)
 }
  */
 
-fun nextExplorer(alive: MutableSet<Alive>, ma: Alive?): Alive {
+fun nextExplorer(alive: MutableList<Alive>, ma: Alive?): Alive {
     val minAStar = alive.filter { a -> a != ma }.minBy { a: Alive -> a.startPoints }.startPoints
-    val explorer =
-        alive.filter { a -> a != ma }.filter { a: Alive -> a.startPoints == minAStar }.maxBy { a: Alive -> a.points }
-    if (alive.remove(explorer)) return explorer
+    val explorer = alive.withIndex()
+        .filter { (_, a: Alive) -> a != ma }
+        .filter { (_, a: Alive) -> a.startPoints == minAStar }
+        .maxBy { (_, a: Alive) -> a.points }
+    return alive.removeAt(explorer.index)
     println("explrer: $explorer")
     alive.forEach { a: Alive ->
         println("a: $a: ${a == explorer}")

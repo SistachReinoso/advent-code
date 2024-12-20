@@ -54,7 +54,7 @@ data class MutableCoordinates(override var x: Int, override var y: Int) : Coordi
 data class Position(override val x: Int, override val y: Int, val direction: CoordinatesMove) : CoordinatesInterface {
     constructor(c: CoordinatesInterface, m: CoordinatesMove) : this(x = c.x, y = c.y, direction = m)
 
-    fun getCoordinates(): CoordinatesInterface = Coordinates(x = x, y = y)
+    fun getCoordinates(): Coordinates = Coordinates(x = x, y = y)
     override operator fun equals(o: Any?): Boolean = when (o) {
         is Position -> x == o.x && y == o.y && direction == o.direction
         is CoordinatesInterface -> x == o.x && y == o.y
