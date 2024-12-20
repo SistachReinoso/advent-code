@@ -71,6 +71,8 @@ class Map2DVersion2(
     fun searchObstacle(c: Coordinates): List<Map2DObstacleInterface> = obstacles
         .filter { obstacle -> c in obstacle }
 
+    operator fun contains(o: CoordinatesInterface): Boolean = o.x in 0..<weight && o.y in 0..<height
+
     fun toString(emptyChar: Char, multipleChar: Char): String =
         (0..<height).joinToString("\n") { y ->
             (0..<weight).fold("") { acc, x ->
@@ -85,7 +87,11 @@ class Map2DVersion2(
             }
         }
 
-    fun toString(other: Pair<Char, Collection<CoordinatesInterface>>, emptyChar: Char = '.', multipleChar: Char = '8'): String =
+    fun toString(
+        other: Pair<Char, Collection<CoordinatesInterface>>,
+        emptyChar: Char = '.',
+        multipleChar: Char = '8'
+    ): String =
         (0..<height).joinToString("\n") { y ->
             (0..<weight).fold("") { acc, x ->
                 val coordinates = Coordinates(x, y)
