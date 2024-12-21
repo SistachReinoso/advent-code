@@ -32,3 +32,28 @@ fun parse(file: Path, fallen: Int, size: Int): Map2DVersion2 {
         )
     }
 }
+
+data class Parser18(val map2d: Map2DVersion2, val coordinates: List<Coordinates>)
+
+fun parsePart2(file: Path, size: Int): Parser18 {
+    file.useLines { lines ->
+        val coordinates = lines
+            .map { line: String -> line.split(",").map { value -> value.toInt() } }
+            .map { (x, y) -> Coordinates(x, y) }
+            .toList()
+
+        val map2d = Map2DVersion2(
+            weight = size + 1,
+            height = size + 1,
+            obstacles = listOf(
+                Map2DObstacleCollection(
+                    char = ParseDay18.WALL.char,
+                    collection = mutableSetOf(),
+                    id = ParseDay18.WALL.id
+                )
+            )
+        )
+
+        return Parser18(map2d, coordinates)
+    }
+}

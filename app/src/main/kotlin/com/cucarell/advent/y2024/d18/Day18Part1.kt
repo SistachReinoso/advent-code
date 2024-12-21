@@ -41,23 +41,24 @@ fun part1(size: Int, fallen: Int, file: Path): Int {
     val start = Coordinates(0, 0)
     val alive: MutableSet<Alive> = mutableSetOf(Alive(start, listOf(start), end))
 
-    return resolveMaze(map2d = map2d, end = end, alive = alive) - 1 // First position is not a step
+    return resolveMaze(map2d = map2d, end = end, alive = alive).size - 1 // First position is not a step
 }
 
 
-fun resolveMaze(map2d: Map2DVersion2, end: Coordinates, alive: MutableSet<Alive>): Int {
+fun resolveMaze(map2d: Map2DVersion2, end: Coordinates, alive: MutableSet<Alive>): List<Coordinates> {
     val track: MutableSet<Coordinates> = mutableSetOf()//alive.first().track.toMutableSet()
 
     while (alive.isNotEmpty()) {
         val explorer: Alive = nextExplorer(alive)
-        if (explorer.position == end) return explorer.track.size
+        if (explorer.position == end) return explorer.track
         if (explorer.position in track) continue
         track.add(explorer.position)
         val nextSteps: List<Coordinates> = nextSteps(explorer = explorer, map2d = map2d, track = track)
         val newAlive: List<Alive> = nextSteps.map { c: Coordinates -> Alive(c, explorer.track + setOf(c), end) }
-        // TODO println(); println(map2d.toString(other = Pair('O', explorer.track))); println(explorer) // TODO
+        // println(); println(map2d.toString(other = Pair('O', explorer.track))); println(explorer) // TODO
         alive.addAll(newAlive)
     }
+    return emptyList()
     error("No more options \\O.o/")
 }
 

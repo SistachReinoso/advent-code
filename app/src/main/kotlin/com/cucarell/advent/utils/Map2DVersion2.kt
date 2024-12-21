@@ -19,6 +19,7 @@ class Map2DObstacleCollection(
     override fun getCoordinatesPointer(c: CoordinatesInterface): List<CoordinatesInterface> =
         collection.filter { e -> e == c }
 
+    @Deprecated("Perquè tots ho han de tenir? Una altra interface de moviment ho podria tenir sense problemes.")
     override fun getMovementCoordinates(c: CoordinatesInterface, move: CoordinatesMove): List<CoordinatesInterface> =
         collection
             .filter { e -> e == c }
