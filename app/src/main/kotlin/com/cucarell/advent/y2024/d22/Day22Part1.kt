@@ -20,7 +20,7 @@ fun part1(file: Path): Long {
 // * 2048 === shl 11
 // * 64 === shl 6
 // / 32 === shr 5
-fun pseudorandom(init: Long): Long {
+private fun pseudorandom(init: Long): Long {
     var secret: Long = init
 
     repeat(2000) {
