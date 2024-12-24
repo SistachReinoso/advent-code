@@ -13,6 +13,11 @@ interface CoordinatesInterface {
         CoordinatesMove.RIGHT -> Coordinates(x + 1, y)
     }
 
+    fun up(): Coordinates = getMovement(CoordinatesMove.UP)
+    fun down(): Coordinates = getMovement(CoordinatesMove.DOWN)
+    fun left(): Coordinates = getMovement(CoordinatesMove.LEFT)
+    fun right(): Coordinates = getMovement(CoordinatesMove.RIGHT)
+
     fun distance(o: CoordinatesInterface): Int = abs(x - o.x) + abs(y - o.y)
 
     operator fun plus(o: CoordinatesInterface): CoordinatesInterface = Coordinates(x + o.x, y + o.y)
