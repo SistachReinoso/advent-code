@@ -20,6 +20,7 @@ class Map2ObstacleBox(override val id: String, val collection: Collection<Mutabl
     override fun getCoordinatesPointer(c: CoordinatesInterface): List<CoordinatesInterface> = collection
         .filter { e -> c in Map2ObstacleBox("", listOf(e)) }
 
+    @Deprecated("Perquè tots ho han de tenir? Una altra interface de moviment ho podria tenir sense problemes.")
     override fun getMovementCoordinates(c: CoordinatesInterface, move: CoordinatesMove): List<CoordinatesInterface> {
         val elements = collection.filter { e -> c in Map2ObstacleBox("", listOf(e)) }
         return when (move) {

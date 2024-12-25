@@ -41,6 +41,7 @@ class Map2DObstacleElement(
     override fun getCoordinatesPointer(c: CoordinatesInterface): List<CoordinatesInterface> = getCoordinatesPointer()
     fun getCoordinatesPointer() = listOf(coordinates)
 
+    @Deprecated("Perquè tots ho han de tenir? Una altra interface de moviment ho podria tenir sense problemes.")
     override fun getMovementCoordinates(c: CoordinatesInterface, move: CoordinatesMove): List<CoordinatesInterface> =
         getMovementCoordinates(move)
 
