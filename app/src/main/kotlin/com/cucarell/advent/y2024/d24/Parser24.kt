@@ -5,7 +5,7 @@ import kotlin.io.path.useLines
 
 data class Parser24(
     val wiresValue: MutableMap<WireKey, Boolean>,
-    val gates: List<GateData>,
+    val gates: MutableMap<WireKey, GateInput>,
     val allWireKeys: Set<WireKey>
 )
 
@@ -14,7 +14,10 @@ fun parser24(file: Path): Parser24 {
         val iterator: Iterator<String> = lines.iterator()
         val wiresValue: MutableMap<WireKey, Boolean> = declareWires(iterator)
         val (gates: List<GateData>, allWireKeys: Set<WireKey>) = declareGates(iterator.asSequence())
-        return Parser24(wiresValue, gates, allWireKeys)
+        val mapGates: MutableMap<WireKey, GateInput> = gates
+            .associate { gateData: GateData -> gateData.run { output to GateInput(input1, input2, gate) } }
+            .toMutableMap()
+        return Parser24(wiresValue, mapGates, allWireKeys + wiresValue.keys)
     }
 }
 
