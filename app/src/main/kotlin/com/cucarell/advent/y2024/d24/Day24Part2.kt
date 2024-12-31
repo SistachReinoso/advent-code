@@ -17,6 +17,7 @@ fun part2(file: Path): String {
     return wiresSwapped
         .map { (w1: WireKey, w2: WireKey) -> listOf(w1, w2) }
         .flatten()
+        .sorted()
         .joinToString(",")
 }
 
@@ -41,7 +42,7 @@ fun whichWiresToSwap(gates: MutableMap<WireKey, GateInput>): Set<WiresSwapped> {
                 swapWires(gates, exploringSwap)
             }
         }
-        error("Solution not found: $solution")
+        error("Solution not found: $nextError: $solution")
     }
 }
 
@@ -56,8 +57,10 @@ fun firstErrorOnAddition(gates: Map<WireKey, GateInput>): Int? = gates.keys
 fun isValidGateAddition(gates: Map<WireKey, GateInput>, i: Int): Boolean {
     // z[0] = x[0] (XOR) y[0]
     // z[i] = x[i] XOR y[i] (XOR) carry[i] // check on test: binarySum
+    // z[-1]= carry[i]
     val wireKey = generateWiredKey('z', i)
     val gate: GateInput = gates.getValue(wireKey)
+    if (i == 45) return isCarry(gates, wireKey, i)
     if (gate.gate != Gate.XOR) return false // setOf(wireKey)
     if (i == 0) return listWiredKey(0) in gate // if (listWiredKey(0) in gate) null else setOf(wireKey)
     return (isXorWiredKey(gates, gate.wireKey1, i) && isCarry(gates, gate.wireKey2, i))
