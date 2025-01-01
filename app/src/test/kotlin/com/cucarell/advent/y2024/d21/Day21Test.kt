@@ -18,6 +18,13 @@ class Day21Test {
         }
 
         @Test
+        fun part2Test1() {
+            val file: Path = object {}.javaClass.getResource("/2024/21/demo")!!.path.let(::Path)
+            val output: Long = part2(file, 2)
+            assertEquals(126384L, output)
+        }
+
+        @Test
         fun code029A() {
             val output = calculateOutput("029A")
             assertEquals(68L * 29L, output)
@@ -63,6 +70,17 @@ class Day21Test {
             assertTrue { "^^<^<A" in bestRoutesValue }
             assertTrue { "^^^<<A" in bestRoutesValue }
             assertEquals(9, bestRoutesValue.size)
+        }
+    }
+
+    @Nested
+    inner class Part2 {
+        @Test
+        fun part2Test() {
+            val file: Path = object {}.javaClass.getResource("/2024/21/demo")!!.path.let(::Path)
+            val output: Long = part2(file)
+            // 82050061710, 72242026390, 81251039228, 80786362258, 77985628636
+            assertEquals(154_115_708_116_294L, output)
         }
     }
 

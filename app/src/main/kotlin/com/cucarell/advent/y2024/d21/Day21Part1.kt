@@ -6,7 +6,6 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
 
-// 148660 Too low
 fun main() {
     val file: Path = object {}.javaClass.getResource("/2024/21/input")!!.path.let(::Path)
     part1(file).let(::println)
